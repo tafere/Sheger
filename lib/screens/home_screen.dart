@@ -38,15 +38,6 @@ class HomeScreen extends StatelessWidget {
                 ExpansionTile(
                   title: Text('Title'),
                   children: [
-                    // ExpansionTile(
-                    //   title: Text('Amharic Movies'),
-                    //   children: movieService.fetchMovies('Amharic Movies').map((movie) {
-                    //     return Padding(
-                    //       padding: const EdgeInsets.only(left: 48.0),
-                    //       child: ListTile(title: Text(movie.title)),
-                    //     );
-                    //   }).toList(),
-                    // ),
                     ExpansionTile(
                       title: Text('Amharic Movies'),
                       children: movieService.fetchMovies('Amharic Movies').map((movie) {
