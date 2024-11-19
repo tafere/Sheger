@@ -10,7 +10,7 @@ class AmharicMovies extends StatelessWidget {
       showtimes: [
         CinemaShowtime(cinema: 'Alem Cinema', times: ['1:00pm', '4:30pm', '7:00pm']),
         CinemaShowtime(cinema: 'Sebastopol', times: ['2:00pm', '7:00pm']),
-        CinemaShowtime(cinema: 'Ethiopia', times: ['11:00am']),
+        CinemaShowtime(cinema: 'Ethiopia', times: ['11:00am', '8:00pm']),
       ],
     ),
     MovieDetail(
