@@ -16,22 +16,34 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Categories'),
-        backgroundColor: Colors.orange,
+        title: Text(
+          'Sheger Events',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
+        backgroundColor: Colors.deepOrangeAccent,
+        elevation: 0, // No shadow for the app bar for a clean look
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
           children: [
             ExpansionTile(
-              title: Text('Movies'),
+              title: Text(
+                  'Movies',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+              ),
               children: [
                 ExpansionTile(
-                  title: Text('Cinema'),
-                  children: movieService.fetchMovies('Cinema').map((movie) {
+                  title: Text(
+                      'Cinema',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  children: movieService.fetchCinemaNames().names.map((name) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 32.0),
-                      child: ListTile(title: Text(movie.title)),
+                      child: ListTile(
+                        title: Text(name),
+                      ),
                     );
                   }).toList(),
                 ),
@@ -78,7 +90,10 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             ExpansionTile(
-              title: Text('Sport'),
+              title: Text(
+                  'Sport',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+              ),
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 32.0),
@@ -87,7 +102,10 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             ExpansionTile(
-              title: Text('Public Festival'),
+              title: Text(
+                  'Public Festival',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+              ),
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 32.0),

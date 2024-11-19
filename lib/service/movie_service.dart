@@ -1,21 +1,11 @@
 import 'package:my_new_flutter_project/model/movie_detail.dart';
+import '../model/cinema_list.dart';
 
 class MovieService {
   List<MovieDetail> fetchMovies(String category) {
     print('Fetching movies for category: $category');
 
-    if (category == 'Cinema') {
-      return [
-        MovieDetail(
-          title: 'Fikir Siferd',
-          posterUrl: 'assets/images/fikirSiferd.jpeg',
-          showtimes: [
-            CinemaShowtime(cinema: 'Alem Cinema', times: ['1:00pm', '5:30pm', '9:00pm']),
-            CinemaShowtime(cinema: 'Sebastopol', times: ['2:00pm', '7:00pm']),
-          ],
-        ),
-      ];
-    } else if (category == 'Amharic Movies') {
+    if (category == 'Amharic Movies') {
       return [
         MovieDetail(
           title: 'Fikir Siferd',
@@ -39,4 +29,8 @@ class MovieService {
     // Add more categories logic as needed
     return [];
   }
-}
+
+  CinemaList fetchCinemaNames() {
+    return CinemaList(names: ['Alem Cinema', 'Sebastopol Cinema', 'Ethiopia Cinema']);
+   }
+  }
