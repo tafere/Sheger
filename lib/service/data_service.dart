@@ -1,5 +1,4 @@
 import '../model/movie_detail.dart';
-
 class DataService {
   Future<List<MovieDetail>> fetchMoviesByCategory(String category) async {
     // Simulate dynamic data fetching
