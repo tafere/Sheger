@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_new_flutter_project/model/movie_detail.dart';
+import 'package:my_new_flutter_project/screens/sport_screen.dart';
 import 'package:my_new_flutter_project/screens/movie_detail_page.dart';
+import 'package:my_new_flutter_project/model/movie_detail.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -58,12 +59,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           controller: _tabController,
           children: [
             _buildMoviesTab(),
-            Center(
-              child: Text(
-                'Sport Content Coming Soon',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
-            ),
+            SportScreen(), // Reference the SportScreen here
             Center(
               child: Text(
                 'Public Festival Content Coming Soon',
@@ -155,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       children: [
         // Expandable list for Amharic Movies
         ExpansionTile(
-          title: Text('Amharic Movies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          title: Text('Amharic Movies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal)),
           children: amharicMovies.map((movie) {
             return ListTile(
               title: Text(movie.title),
@@ -173,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
         // Expandable list for English Movies
         ExpansionTile(
-          title: Text('English Movies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          title: Text('English Movies', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.teal)),
           children: englishMovies.map((movie) {
             return ListTile(
               title: Text(movie.title),
