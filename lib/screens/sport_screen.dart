@@ -3,6 +3,13 @@ import 'dart:convert'; // For decoding JSON
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart'; // Import to format dates
 
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: SportScreen(),
+  ));
+}
+
 class SportScreen extends StatefulWidget {
   @override
   _SportScreenState createState() => _SportScreenState();
@@ -21,7 +28,6 @@ class _SportScreenState extends State<SportScreen> {
     fetchLaLigaFixtures(); // Initially fetch La Liga fixtures
   }
 
-  // Fetch English Premier League Fixtures
   Future<void> fetchEPLFixtures() async {
     const apiUrl = 'https://api.football-data.org/v4/competitions/PL/matches';
     const apiKey = '496f9c02ede9445aa3094ac9c080c067'; // Replace with your API key.
@@ -34,9 +40,10 @@ class _SportScreenState extends State<SportScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final matches = data['matches'] as List;
+        final matches = data['matches'] as List?;
 
-        // Filter matches for November 23, 2024, based on Ethiopian time (UTC+3)
+        if (matches == null) throw Exception('Matches data is null');
+
         final filteredMatches = matches.where((match) {
           final matchDateUtc = DateTime.parse(match['utcDate']);
           final matchDateAddisAbaba = matchDateUtc.add(Duration(hours: 3)); // Addis Ababa time (UTC+3)
@@ -48,11 +55,21 @@ class _SportScreenState extends State<SportScreen> {
           final matchDateUtc = DateTime.parse(match['utcDate']);
           final matchDateAddisAbaba = matchDateUtc.add(Duration(hours: 3)); // Addis Ababa time (UTC+3)
 
+          final homeTeam = match['homeTeam']?['name'] ?? 'Unknown';
+          final awayTeam = match['awayTeam']?['name'] ?? 'Unknown';
+          final venue = match['venue'] ?? 'Unknown';
+          final score = match['score']?['fullTime'] ?? {'home': null, 'away': null};
+          final liveScore = match['score']?['current'] ?? {'homeTeam': null, 'awayTeam': null};
+          final status = match['status'] ?? 'SCHEDULED';
+
           return {
-            'homeTeam': match['homeTeam']['name'],
-            'awayTeam': match['awayTeam']['name'],
+            'homeTeam': homeTeam,
+            'awayTeam': awayTeam,
             'date': matchDateAddisAbaba,
-            'venue': match['venue'] ?? 'Unknown',
+            'venue': venue,
+            'status': status,
+            'score': score,
+            'liveScore': liveScore,
           };
         }).toList();
 
@@ -71,7 +88,6 @@ class _SportScreenState extends State<SportScreen> {
     }
   }
 
-  // Fetch La Liga Fixtures
   Future<void> fetchLaLigaFixtures() async {
     const apiUrl = 'https://api.football-data.org/v4/competitions/PD/matches';
     const apiKey = '496f9c02ede9445aa3094ac9c080c067'; // Replace with your API key.
@@ -86,7 +102,6 @@ class _SportScreenState extends State<SportScreen> {
         final data = json.decode(response.body);
         final matches = data['matches'] as List;
 
-        // Filter matches for November 23, 2024, based on Ethiopian time (UTC+3)
         final filteredMatches = matches.where((match) {
           final matchDateUtc = DateTime.parse(match['utcDate']);
           final matchDateAddisAbaba = matchDateUtc.add(Duration(hours: 3)); // Addis Ababa time (UTC+3)
@@ -117,93 +132,6 @@ class _SportScreenState extends State<SportScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: currentIndex == 0 ? _buildEthiopianPremierLeague() : _buildInternationalFootball(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex, // Set the current index based on selection
-        selectedItemColor: Colors.teal,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-            if (currentIndex == 1) {
-              fetchEPLFixtures(); // Fetch EPL fixtures if selected
-            } else {
-              fetchLaLigaFixtures(); // Fetch La Liga fixtures if selected
-            }
-          });
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sports_soccer),
-            label: 'Ethiopian Premier League',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.public),
-            label: 'International Football',
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Build the Ethiopian Premier League Fixtures (Example mockup)
-  Widget _buildEthiopianPremierLeague() {
-    return ListView.builder(
-      itemCount: 1, // Example count
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Fixture: Hawassa Kenema vs Arbaminch'),
-          subtitle: Text('Time: 11:00 AM | Venue: Hawassa Stadium'),
-        );
-      },
-    );
-  }
-
-  // Build the football leagues' interface for International Football
-  Widget _buildInternationalFootball() {
-    final List<String> leagues = [
-      'English Premier League',
-      'Spanish La Liga',
-      'Italian Serie A',
-      'French Ligue 1',
-      'Champions League',
-    ];
-
-    return ListView.builder(
-      itemCount: leagues.length,
-      itemBuilder: (context, index) {
-        final String league = leagues[index];
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: ExpansionTile(
-            title: Text(
-              league,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            children: league == 'English Premier League'
-                ? _buildFixtureList(eplFixtures)
-                : league == 'Spanish La Liga'
-                ? _buildFixtureList(laLigaFixtures)
-                : [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                child: Text(
-                  'Upcoming Matches for $league',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // Build the fixture list for each league
   List<Widget> _buildFixtureList(List<Map<String, dynamic>> fixtures) {
     if (isLoading) {
       return [
@@ -223,7 +151,6 @@ class _SportScreenState extends State<SportScreen> {
       ];
     }
 
-    // Group fixtures by date
     Map<String, List<Map<String, dynamic>>> groupedFixtures = {};
     for (var match in fixtures) {
       final formattedDate = DateFormat('EEEE MM/dd/yyyy').format(match['date']);
@@ -239,46 +166,138 @@ class _SportScreenState extends State<SportScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Text(
-            date, // e.g., Saturday 11/23/2024
+            date,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
         ),
       );
 
-      // Add matches for this date
       matches.forEach((match) {
         final formattedTime = DateFormat('HH:mm').format(match['date']);
+
+        // Safely retrieve the scores, using '-' if null
+        final finalHomeScore = match['score']?['home'] != null
+            ? match['score']['home'].toString()
+            : '-';
+        final finalAwayScore = match['score']?['away'] != null
+            ? match['score']['away'].toString()
+            : '-';
+
+        // Check if the match is live or finished
+        final bool isLiveOrFinished = match['status'] == 'LIVE' || match['status'] == 'FINISHED';
+
+        // Display the score directly
+        final String scoreDisplay = isLiveOrFinished ? '$finalHomeScore - $finalAwayScore' : 'Vs';
+
+// Remove "FC" from team names
+        String homeTeam = match['homeTeam']?.replaceAll(' FC', '') ?? 'Home';
+        String awayTeam = match['awayTeam']?.replaceAll(' FC', '') ?? 'Away';
+
         fixtureWidgets.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${match['homeTeam']} vs ${match['awayTeam']}',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Time
+                    Text(
+                      formattedTime,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                    // Teams and Score
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Text(
+                          '$homeTeam $scoreDisplay $awayTeam',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 4),
-                Text(
-                  '$formattedTime - ${match['venue']}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                Divider(),
-              ],
-            ),
+              ),
+              Divider(
+                thickness: 1,
+                color: Colors.grey[300],
+              ),
+            ],
           ),
         );
       });
+
     });
 
     return fixtureWidgets;
   }
-}
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: SportScreen(),
-  ));
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: currentIndex == 0 ? _buildEthiopianPremierLeague() : _buildInternationalFootball(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.sports_soccer),
+            label: 'Ethiopian Premier League',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.public),
+            label: 'International Football',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEthiopianPremierLeague() {
+    return ListView.builder(
+      itemCount: 1, // Example count
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text('Fixture: Hawassa Kenema vs Arbaminch'),
+          subtitle: Text('Time: 11:00 AM | Venue: Hawassa Stadium'),
+        );
+      },
+    );
+  }
+
+  Widget _buildInternationalFootball() {
+    final List<String> leagues = [
+      'English Premier League',
+      'Spanish La Liga',
+    ];
+
+    return ListView.builder(
+      itemCount: leagues.length,
+      itemBuilder: (context, index) {
+        final league = leagues[index];
+
+        return ExpansionTile(
+          title: Text(
+            league,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          children: league == 'English Premier League'
+              ? _buildFixtureList(eplFixtures)
+              : league == 'Spanish La Liga'
+              ? _buildFixtureList(laLigaFixtures)
+              : [],
+        );
+      },
+    );
+  }
 }
 
